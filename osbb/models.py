@@ -29,9 +29,9 @@ class MeterType(models.Model):
 
 class Meter(models.Model):
     type = models.ForeignKey(MeterType, on_delete=models.CASCADE)
-    apartment = models.ForeignKey(ApartmentType, on_delete=models.CASCADE)
+    apartment = models.ForeignKey(Apartment, on_delete=models.CASCADE)
     number = models.CharField(max_length=50)
-    valid_date = models.DateTimeField('validation date')
+    valid_date = models.DateField('validation date')
 
     def __str__(self):
         return self.apartment.number
