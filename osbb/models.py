@@ -18,6 +18,9 @@ class Apartment(models.Model):
     def __str__(self):
         return self.number
 
+    def owner(self):
+        return self.persons.first()
+
 
 class MeterType(models.Model):
     text = models.CharField(max_length=100)
@@ -44,3 +47,13 @@ class Measurement(models.Model):
 
     def __str__(self):
         return self.value;
+
+
+class Person(models.Model):
+    first_name = models.CharField(max_length=100)
+    middle_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    apartments = models.ManyToManyField(Apartment, related_name='persons')
+
+    def __str__(self):
+        return self.last_name + ' ' + self.first_name
