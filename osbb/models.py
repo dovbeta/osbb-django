@@ -19,7 +19,11 @@ class Apartment(models.Model):
         return self.number
 
     def owner(self):
-        return self.persons.first()
+        qs = self.persons.filter(is_owner=True)
+        if len(qs) > 0:
+            return qs[0]
+        else:
+            return None
 
 
 class MeterType(models.Model):
@@ -54,6 +58,7 @@ class Person(models.Model):
     middle_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     apartments = models.ManyToManyField(Apartment, related_name='persons')
+    is_owner = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.last_name + ' ' + self.first_name
+        return self.last_name + ' ' + self.first_name + (' (owner)' if self.is_owner else '')

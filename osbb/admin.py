@@ -17,12 +17,13 @@ class MeterInline(admin.TabularInline):
 class PersonsInline(admin.TabularInline):
     model = Apartment.persons.through
     extra = 0
+    can_delete = False
+    verbose_name_plural = 'Roommates'
+
 
 
 class PersonAdmin(admin.ModelAdmin):
-    inlines = [
-        PersonsInline,
-    ]
+    search_fields = ('last_name',)
 
 
 class ApartmentAdmin(admin.ModelAdmin):
