@@ -68,26 +68,59 @@ class PersonalAccount(models.Model):
     apartment = models.OneToOneField(Apartment, on_delete=models.CASCADE, primary_key=True,
                                      related_name='personal_account')
     number = models.CharField(max_length=20)
+    debt = models.FloatField(default=0)
+    date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.number
+        return "%(number)s" % {'number': self.number}
+
+    def get_balance(self):
+        qs = self.balances.order_by('-date')
+        if len(qs) > 0:
+            return qs[0]
+        else:
+            return None
+
+    def get_balance_value(self):
+        bal = self.get_balance()
+        return bal.value if bal else 0
+
+    def update_debt(self):
+        self.debt = self.get_balance_value()
+        self.save()
+        return 'FFF'
 
 
 class Balance(models.Model):
-    personal_account = models.ForeignKey(PersonalAccount, on_delete=models.CASCADE)
+    personal_account = models.ForeignKey(PersonalAccount, on_delete=models.CASCADE, related_name='balances')
     date = models.DateTimeField(auto_now=True)
     value = models.FloatField()
 
+    def save(self, **kwargs):
+        super(Balance, self).save(**kwargs)
+        self.personal_account.update_debt()
+
+    def delete(self):
+        super(Balance, self).delete()
+        self.personal_account.update_debt()
+
 
 class OrgAccount(models.Model):
-    title = models.CharField(max_length=20)
-    number = models.CharField(max_length=20)
+    title = models.CharField(max_length=50)
+    requisites_text = models.TextField(default='')
+
+    def __str__(self):
+        return self.title
 
 
 class OrgBalance(models.Model):
     org_account = models.ForeignKey(OrgAccount, on_delete=models.CASCADE)
-    date = models.DateTimeField(auto_now=True)
+    date = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     value = models.FloatField()
+
+    def __str__(self):
+        return "%s - %s грн. (%s)" % (self.org_account.title, self.value, self.date)
 
 
 class Payment(models.Model):

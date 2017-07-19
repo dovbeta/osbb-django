@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from osbb.models import ApartmentType, Apartment, MeterType, Meter, Person, Service, PersonalAccount
+from osbb.models import ApartmentType, Apartment, MeterType, Meter, Person, Service, PersonalAccount, OrgAccount, \
+    OrgBalance, Balance
 from nested_inline.admin import NestedModelAdmin, NestedTabularInline, NestedStackedInline
 
 admin.site.register(ApartmentType)
@@ -45,19 +46,21 @@ class PersonalAccountInline(NestedStackedInline):
     #readonly_fields = ('number',)
     inlines = [ServicesInline]
     verbose_name_plural = 'Personal account'
-
-    def has_add_permissiodn(self, request):
-        return False
+    classes = ['collapse']
 
 
 class ApartmentAdmin(NestedModelAdmin):
-    fields = ['number', 'area', 'rooms_number']
     list_filter = ['entrance', 'floor', 'rooms_number']
-    list_display = ['number',  'owner', 'entrance', 'floor', 'area', 'rooms_number']
+    list_display = ['number',  'owner', 'entrance', 'floor', 'area', 'rooms_number', 'get_debt']
     search_fields = ['number']
     inlines = [PersonalAccountInline, PersonsInline, MeterInline]
     ordering = ['number']
     exclude = ('persons',)
+
+    def get_debt(self, obj):
+        return obj.personal_account.debt
+    get_debt.short_description = 'Debt'
+    get_debt.admin_order_field = 'personal_account__debt'
 
 
 class ServiceAdmin(admin.ModelAdmin):
@@ -68,3 +71,6 @@ admin.site.register(Apartment, ApartmentAdmin)
 admin.site.register(Person, PersonAdmin)
 admin.site.register(Service, ServiceAdmin)
 admin.site.register(PersonalAccount)
+admin.site.register(OrgAccount)
+admin.site.register(OrgBalance)
+admin.site.register(Balance)
