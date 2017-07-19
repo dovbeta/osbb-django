@@ -50,7 +50,7 @@ class Measurement(models.Model):
     pub_date = models.DateTimeField('publication date')
 
     def __str__(self):
-        return self.value;
+        return self.value
 
 
 class Person(models.Model):
@@ -65,8 +65,12 @@ class Person(models.Model):
 
 
 class PersonalAccount(models.Model):
-    apartment = models.OneToOneField(Apartment, on_delete=models.CASCADE, primary_key=True)
+    apartment = models.OneToOneField(Apartment, on_delete=models.CASCADE, primary_key=True,
+                                     related_name='personal_account')
     number = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.number
 
 
 class Balance(models.Model):
@@ -102,12 +106,15 @@ class OrgCost(models.Model):
 
 
 class Service(models.Model):
-    personal_accounts = models.ManyToManyField(PersonalAccount)
+    personal_accounts = models.ManyToManyField(PersonalAccount, related_name='services')
     title = models.CharField(max_length=200)
     tariff = models.FloatField(default=0)
     formula = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.title
 
 
 class Accrual(models.Model):
